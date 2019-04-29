@@ -179,18 +179,24 @@ def GetTrueRate(Condition):
 # %%
 filescsv = filterByFormat(".csv", openDocuments("Actual"))
 
-# %%
-readfile = pd.read_csv(filescsv[int(argv[1])], delimiter=";")
+truet = np.zeros(7)
+truet3 = np.zeros(7)
+for file in filescsv:
+    readfile = pd.read_csv(file, delimiter=";")
+    C2 = readfile[readfile.HringState == "ON"]
+    C3 = readfile[readfile.HringState == "RELEASING"]
+    invertData(C2)
+    invertData(C3)
+    TrueVector = GetTrueRate(C2)
+    TrueVector3 = GetTrueRate(C3)
+    if file==filescsv[8]:
+        truet += np.array(TrueVector[::])/len(filescsv)
+        truet3 += np.array(TrueVector3[::])/len(filescsv)
+    else:
+        truet += np.array(TrueVector[::-1])/len(filescsv)
+        truet3 += np.array(TrueVector3[::-1])/len(filescsv)
 
-# %%
-C2 = readfile[readfile.HringState == "ON"]
-C3 = readfile[readfile.HringState == "RELEASING"]
-# %%
-invertData(C2)
-invertData(C3)
-# %%
-TrueVector = GetTrueRate(C2)
-TrueVector3 = GetTrueRate(C3)
+
 # %%
 VariableValues = GetAxisX(C2)
 VariableValuesf = [round(float(value.replace(',', '.')), 3)
@@ -200,12 +206,9 @@ VariableValuesf = [round(float(value.replace(',', '.')), 3)
 Trials = np.ones(len(VariableValues))*5
 
 # %%
-if int(argv[1])==8:
-    data = np.array([VariableValuesf, TrueVector[::], Trials]).T
-    data2 = np.array([VariableValuesf, TrueVector3[::], Trials]).T
-else:
-    data = np.array([VariableValuesf, TrueVector[::-1], Trials]).T
-    data2 = np.array([VariableValuesf, TrueVector3[::-1], Trials]).T
+
+data = np.array([VariableValuesf, truet, Trials]).T
+data2 = np.array([VariableValuesf, truet3, Trials]).T
 # %%
 options = dict()
 options['sigmoidName'] = 'Weibull'
@@ -223,5 +226,5 @@ with fit(data2,options) as res:
     plotPsych(res, 
                 dataColor      = [0, 0, 255./255],
                 lineColor      = [0, 0, 255./255])
-    plt.savefig("Weibull"+argv[1])
+    plt.savefig("WeibullTotal")
 # %%
