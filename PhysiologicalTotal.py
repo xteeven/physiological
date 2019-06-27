@@ -139,6 +139,103 @@ def plotPsych(result,
         plt.show(0)
     return axisHandle
 
+def plotsModelfit(result,
+              showImediate   = True):
+    """
+    Plots some standard plots, meant to help you judge whether there are
+    systematic deviations from the model. We dropped the statistical tests
+    here though.
+    
+    The left plot shows the psychometric function with the data. 
+    
+    The central plot shows the Deviance residuals against the stimulus level. 
+    Systematic deviations from 0 here would indicate that the measured data
+    shows a different shape than the fitted one.
+    
+    The right plot shows the Deviance residuals against "time", e.g. against
+    the order of the passed blocks. A trend in this plot would indicate
+    learning/ changes in performance over time. 
+    
+    These are the same plots as presented in psignifit 2 for this purpose.
+    """
+    
+    fit = result['Fit']
+    data = result['data']
+    options = result['options']
+    
+    minStim = min(data[:,0])
+    maxStim = max(data[:,0])
+    stimRange = [1.1*minStim - .1*maxStim, 1.1*maxStim - .1*minStim]
+    
+    plt.figure(figsize=(15,5))
+
+    ax = plt.subplot(1,3,1)    
+    # the psychometric function
+    x = np.linspace(stimRange[0], stimRange[1], 1000)
+    y = fit[3] + (1-fit[2]-fit[3]) * options['sigmoidHandle'](x, fit[0], fit[1])
+    
+    plt.plot(x, y, 'k', clip_on=False)
+    plt.plot(data[:,0], data[:,1]/data[:,2], '.k', ms=10, clip_on=False)
+    
+    plt.xlim(stimRange)
+    if options['expType'] == 'nAFC':
+        plt.ylim([min(1./options['expN'], min(data[:,1]/data[:,2])), 1])
+    else:
+        plt.ylim([0,1])
+    plt.xlabel('Stimulus Level',  fontsize=14)
+    plt.ylabel('Percent Correct', fontsize=14)
+    plt.title('Psychometric Function', fontsize=20)
+    plt.tick_params(right=False,top=False)
+    for side in ['top','right']: ax.spines[side].set_visible(False)
+    plt.ticklabel_format(style='sci',scilimits=(-2,4))   
+    
+    ax = plt.subplot(1,3,2)
+    # stimulus level vs deviance
+    stdModel = fit[3] + (1-fit[2]-fit[3]) * options['sigmoidHandle'](data[:,0],fit[0],fit[1])
+    deviance = data[:,1]/data[:,2] - stdModel
+    stdModel = np.sqrt(stdModel * (1-stdModel))
+    deviance = deviance / stdModel
+    xValues = np.linspace(minStim, maxStim, 1000)
+    
+    plt.plot(data[:,0], deviance, 'k.', ms=10, clip_on=False)
+    linefit = np.polyfit(data[:,0],deviance,1)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k-', clip_on=False)
+    linefit = np.polyfit(data[:,0],deviance,2)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k--', clip_on=False)
+    linefit = np.polyfit(data[:,0],deviance,3)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k:', clip_on=False)
+
+    plt.xlabel('Stimulus Level',  fontsize=14)
+    plt.ylabel('Deviance', fontsize=14)
+    plt.title('Shape Check', fontsize=20)
+    plt.tick_params(right=False,top=False)
+    for side in ['top','right']: ax.spines[side].set_visible(False)
+    plt.ticklabel_format(style='sci',scilimits=(-2,4))
+    
+    ax = plt.subplot(1,3,3)
+    # block number vs deviance
+    blockN = range(len(deviance))
+    xValues = np.linspace(min(blockN), max(blockN), 1000)
+    plt.plot(blockN, deviance, 'k.', ms=10, clip_on=False)
+    linefit = np.polyfit(blockN,deviance,1)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k-', clip_on=False)
+    linefit = np.polyfit(blockN,deviance,2)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k--', clip_on=False)
+    linefit = np.polyfit(blockN,deviance,3)
+    plt.plot(xValues, np.polyval(linefit,xValues),'k:', clip_on=False)
+    
+    plt.xlabel('Block Number',  fontsize=14)
+    plt.ylabel('Deviance', fontsize=14)
+    plt.title('Time Dependence?', fontsize=20)
+    plt.tick_params(right=False,top=False)
+    for side in ['top','right']: ax.spines[side].set_visible(False)
+    plt.gca().xaxis.set_major_formatter(ScalarFormatter())
+    plt.ticklabel_format(style='sci',scilimits=(-2,4))
+    
+    plt.tight_layout()
+    if (showImediate):
+        plt.show(0)
+
 def openDocuments(pathdir=None):
     retorno = []
     if pathdir == None:
@@ -218,13 +315,19 @@ for style in plt.style.available:
 plt.style.use(plt.style.available[0])
 
 # %%
+#with fit(data,options) as res:
+#    plotPsych(res, 
+#                dataColor      = [255./255, 0, 0],
+#                lineColor      = [255./255, 0, 0])
+#with fit(data2,options) as res:
+#    plotPsych(res, 
+#                dataColor      = [0, 0, 255./255],
+#                lineColor      = [0, 0, 255./255])
+#    plt.savefig("WeibullTotal")
+## %%
 with fit(data,options) as res:
-    plotPsych(res, 
-                dataColor      = [255./255, 0, 0],
-                lineColor      = [255./255, 0, 0])
+    plotsModelfit(res)
+    plt.savefig("WeibullT2")          
 with fit(data2,options) as res:
-    plotPsych(res, 
-                dataColor      = [0, 0, 255./255],
-                lineColor      = [0, 0, 255./255])
-    plt.savefig("WeibullTotal")
-# %%
+    plotsModelfit(res)
+    plt.savefig("WeibullT3")
