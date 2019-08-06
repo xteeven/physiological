@@ -7,7 +7,12 @@ import pandas as pd
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+import csv
+from babel.numbers import format_number, format_decimal, format_percent
+>>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
 =======
 import csv
 from babel.numbers import format_number, format_decimal, format_percent
@@ -65,6 +70,7 @@ def plot_confusion_matrix(df_confusion, title='Confusion matrix', cmap=plt.cm.gr
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 # %% Execute
 filescsv = filterByFormat(".csv", openDocuments("ActualFriction"))
 
@@ -103,6 +109,8 @@ plt.savefig("User_"+str(user)+"C2")
 plot_confusion_matrix(CMBH1,"Condition 1")
 plt.savefig("User_"+str(user)+"C1")
 =======
+=======
+>>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
 =======
 >>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
 =======
@@ -227,6 +235,9 @@ plt.savefig("User_T C1")
 #%%0.8076923076923077
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
+=======
 >>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
 =======
 >>>>>>> d9dd1dba44bf4f3715ef36b5739c682c8e220f16
